@@ -1,6 +1,6 @@
 class Chave:
     def __init__(self, id: str):
-        self._id = id
+        self.__id = id
 
     def get_id(self) -> str:
-        return self._id
+        return self.__id
