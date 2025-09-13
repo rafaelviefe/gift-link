@@ -1,4 +1,3 @@
 supabase
 python-dotenv
---extra-index-url https://PySimpleGUI.net/install
-PySimpleGUI
+FreeSimpleGUI

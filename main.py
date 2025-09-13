@@ -1,4 +1,4 @@
-import PySimpleGUI as sg
+import FreeSimpleGUI as sg
 from views import tela_inicial_view, tela_cadastro_view, tela_organizador_view
 from controller import organizador_controller
 from model.organizador import Organizador

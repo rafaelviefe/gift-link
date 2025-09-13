@@ -1,4 +1,4 @@
-import PySimpleGUI as sg
+import FreeSimpleGUI as sg
 from views.theme import configure_theme
 from model.organizador import Organizador
 
