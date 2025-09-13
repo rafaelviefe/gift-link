@@ -1,59 +1,78 @@
 import FreeSimpleGUI as sg
 from views.theme import configure_theme
 from typing import Iterable
+from controller.participante_controller import ParticipanteController
+from model.organizador import Organizador
 
+class TelaCadastroParticipante:
+    def __init__(self, participante_controller: ParticipanteController, organizador: Organizador):
+        configure_theme()
+        self.__participante_controller = participante_controller
+        self.__organizador = organizador
+        self.__janela = None
 
-def _format_participantes(participantes: Iterable) -> list:
-    rows = []
-    if not participantes:
-        return rows
-    for p in participantes:
-        pid = p.get_id() if hasattr(p, "get_id") else ""
-        username = p.get_username() if hasattr(p, "get_username") else ""
-        elegivel = getattr(p, "is_elegivel", None)
-        if callable(elegivel):
+    def _format_participantes(self, participantes: Iterable) -> list:
+        rows = []
+        if not participantes:
+            return rows
+        for p in participantes:
+            pid = p.get_id()
+            username = p.get_username()
             eleg = "Sim" if p.is_elegivel() else "Não"
-        else:
-            eleg = "Sim" if getattr(p, "_Participante__elegivel", False) else "Não"
-        rows.append([pid, username, eleg])
-    return rows
+            rows.append([pid, username, eleg])
+        return rows
 
+    def __criar_janela(self):
+        participantes, _ = self.__participante_controller.listar_participantes()
+        
+        headings = ["ID", "Username", "Elegível"]
+        table_values = self._format_participantes(participantes)
 
-def criar_janela_cadastro(participantes: Iterable | None = None):    
-    configure_theme()
+        layout = [
+            [sg.Text("Cadastro de Participante", font=("Helvetica", 20, "bold"))],
+            [sg.Text("Username", size=(14, 1)), sg.InputText(key="-USERNAME-")],
+            [
+                sg.Table(
+                    values=table_values,
+                    headings=headings,
+                    auto_size_columns=False,
+                    col_widths=[8, 30, 12],
+                    justification="center",
+                    num_rows=10,
+                    key="-TABLE-",
+                )
+            ],
+            [sg.Button("Cadastrar", key="-SUBMIT-"), sg.Button("Voltar", key="-VOLTAR-")],
+        ]
+        return sg.Window(
+            "Cadastro de Participantes - GiftLink", layout, finalize=True, element_justification="center"
+        )
 
-    headings = ["ID", "Username", "Elegível"]
-    table_values = _format_participantes(participantes)
+    def __atualizar_tabela(self):
+        if not self.__janela:
+            return
+        participantes, _ = self.__participante_controller.listar_participantes()
+        rows = self._format_participantes(participantes)
+        self.__janela["-TABLE-"].update(values=rows)
 
-    layout = [
-        [sg.Text("Cadastro de Participante", font=("Helvetica", 20, "bold"))],
-        [sg.Text("Username", size=(14, 1)), sg.InputText(key="-USERNAME-")],
-        [
-            sg.Table(
-                values=table_values,
-                headings=headings,
-                auto_size_columns=False,
-                col_widths=[8, 30, 12],
-                justification="center",
-                num_rows=10,
-                key="-TABLE-",
-                enable_events=False,
-                alternating_row_color=None,
-            )
-        ],
-        [sg.Button("Cadastrar", key="-SUBMIT-"), sg.Button("Voltar", key="-VOLTAR-")],
-    ]
+    def abrir(self):
+        self.__janela = self.__criar_janela()
 
-    return sg.Window(
-        "Cadastro - GiftLink", layout, finalize=True, element_justification="center"
-    )
+        while True:
+            evento, valores = self.__janela.read()
 
+            if evento == sg.WIN_CLOSED or evento == "-VOLTAR-":
+                self.fechar()
+                return "painel_organizador", self.__organizador, None
+            
+            if evento == "-SUBMIT-":
+                username = valores["-USERNAME-"]
+                _, mensagem = self.__participante_controller.registrar_participante(username)
+                sg.popup(mensagem)
+                self.__janela["-USERNAME-"].update("")
+                self.__atualizar_tabela()
 
-def atualizar_tabela(window, participantes: Iterable | None):
-    if window is None:
-        return
-    rows = _format_participantes(participantes)
-    try:
-        window["-TABLE-"].update(values=rows)
-    except Exception:
-        pass
+    def fechar(self):
+        if self.__janela:
+            self.__janela.close()
+            self.__janela = None
