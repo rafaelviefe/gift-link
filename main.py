@@ -67,8 +67,10 @@ def main():
                 janela_inicial = tela_inicial_view.criar_janela_inicial()
             elif evento == "-PARTICIPANTES-":
                 janela_organizador.hide()
+                # fetch participantes and open cadastro window with current list
+                participantes, _msg = participante_controller.listar_participantes()
                 janela_cadastro_participante = (
-                    tela_cadastro_participante_view.criar_janela_cadastro()
+                    tela_cadastro_participante_view.criar_janela_cadastro(participantes)
                 )
             elif evento == "-SORTEIOS-":
                 sg.popup(
@@ -82,9 +84,20 @@ def main():
                 janela_organizador.un_hide()
             elif evento == "-SUBMIT-":
                 username = valores["-USERNAME-"]
-                _, mensagem = participante_controller.registrar_participante(username)
+                participante, mensagem = participante_controller.registrar_participante(
+                    username
+                )
                 sg.popup(mensagem)
-                janela_cadastro_participante["-USERNAME-"].update("")
+                # refresh table with latest participantes from repository
+                participantes, _msg = participante_controller.listar_participantes()
+                tela_cadastro_participante_view.atualizar_tabela(
+                    janela_cadastro_participante, participantes
+                )
+                # clear input
+                try:
+                    janela_cadastro_participante["-USERNAME-"].update("")
+                except Exception:
+                    pass
 
     if janela_inicial:
         janela_inicial.close()

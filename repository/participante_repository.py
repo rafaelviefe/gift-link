@@ -11,24 +11,69 @@ key: str = os.environ.get("SUPABASE_KEY")
 
 supabase: Client = create_client(url, key)
 
-def criar_participante(novo_participante : Participante) -> Tuple[Optional[Participante], str]:
+
+def criar_participante(
+    novo_participante: Participante,
+) -> Tuple[Optional[Participante], str]:
     try:
-        response_check = supabase.table('participantes').select('id').eq('username', novo_participante.get_username()).execute()
+        response_check = (
+            supabase.table("participantes")
+            .select("id")
+            .eq("username", novo_participante.get_username())
+            .execute()
+        )
 
         if response_check.data:
-            return (None, f"O nome de usuário '{novo_participante.get_username()}' já existe.")
+            return (
+                None,
+                f"O nome de usuário '{novo_participante.get_username()}' já existe.",
+            )
 
-        response_insert = supabase.table('participantes').insert({
-            "username": novo_participante.get_username(),
-            "senha": novo_participante.get_senha()
-        }).execute()
+        response_insert = (
+            supabase.table("participantes")
+            .insert(
+                {
+                    "username": novo_participante.get_username(),
+                    "senha": novo_participante.get_senha(),
+                }
+            )
+            .execute()
+        )
 
         if response_insert.data:
-            id_criado = response_insert.data[0]['id']
+            id_criado = response_insert.data[0]["id"]
             novo_participante.set_id(id_criado)
-            return (novo_participante, f"Participante '{novo_participante.get_username()}' criado com sucesso!")
+            return (
+                novo_participante,
+                f"Participante '{novo_participante.get_username()}' criado com sucesso!",
+            )
         else:
-            error_message = response_insert.error.message if response_insert.error else "Erro desconhecido ao inserir dados."
+            error_message = (
+                response_insert.error.message
+                if response_insert.error
+                else "Erro desconhecido ao inserir dados."
+            )
             return (None, f"Falha ao criar participante: {error_message}")
     except Exception as e:
         return (None, f"Ocorreu um erro inesperado no servidor: {e}")
+
+
+def listar_participantes() -> Tuple[list, str]:
+    try:
+        response = supabase.table("participantes").select("*").execute()
+
+        if response.data:
+            participantes = []
+            for item in response.data:
+                participante = Participante(
+                    id=item["id"],
+                    username=item["username"],
+                    senha=item["senha"],
+                    elegivel=item["elegivel"],
+                )
+                participantes.append(participante)
+            return (participantes, "Participantes buscados com sucesso!")
+        else:
+            return ([], "Nenhum participante encontrado.")
+    except Exception as e:
+        return ([], f"Ocorreu um erro inesperado no servidor: {e}")

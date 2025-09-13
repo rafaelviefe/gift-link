@@ -1,8 +1,15 @@
 from typing import Optional
 from model.usuario import Usuario
 
+
 class Participante(Usuario):
-    def __init__(self, username: str, senha: str, id: Optional[int] = None, elegivel: bool = True):
+    def __init__(
+        self,
+        username: str,
+        senha: str,
+        id: Optional[int] = None,
+        elegivel: bool = False,
+    ):
         super().__init__(username, senha, id)
         self.__elegivel = elegivel
 
