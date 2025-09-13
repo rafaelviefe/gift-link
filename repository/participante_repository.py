@@ -102,7 +102,7 @@ def listar_participantes() -> Tuple[list, str]:
 
 def alterar_senha_participante(username: str, nova_senha: str) -> Tuple[bool, str]:
     try:
-        response = supabase.table("participantes").update({"senha": nova_senha}).eq("username", username).execute()
+        response = supabase.table("participantes").update({"senha": nova_senha, "elegivel": True}).eq("username", username).execute()
 
         if response.data:
             return (True, f"Senha alterada com sucesso.")

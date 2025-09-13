@@ -17,4 +17,4 @@ def criar_senha_provisoria() -> tuple[str, str]:
     return senha, criptografar_senha(senha)
 
 def valida_entrada(username: str, senha: str) -> bool:
-    return username == "" or len(senha) < 6
+    return username != "" and len(senha) >= 6
