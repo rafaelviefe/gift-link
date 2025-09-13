@@ -65,10 +65,10 @@ def buscar_participante(username: str) -> Tuple[Optional[Participante], str]:
             dados_participante = response.data[0]
             
             participante_encontrado = Participante(
-                id=dados_participante.get('id'),
-                username=dados_participante.get('username'),
-                senha=dados_participante.get('senha'),
-                elegivel=dados_participante.get('elegivel')
+                id=dados_participante.get("id"),
+                username=dados_participante.get("username"),
+                senha=dados_participante.get("senha"),
+                elegivel=dados_participante.get("elegivel"),
             )
             return (participante_encontrado, f"Participante '{username}' encontrado com sucesso.")
         
@@ -99,3 +99,17 @@ def listar_participantes() -> Tuple[list, str]:
             return ([], "Nenhum participante encontrado.")
     except Exception as e:
         return ([], f"Ocorreu um erro inesperado no servidor: {e}")
+
+def alterar_senha_participante(username: str, nova_senha: str) -> Tuple[bool, str]:
+    try:
+        response = supabase.table("participantes").update({"senha": nova_senha}).eq("username", username).execute()
+
+        if response.data:
+            return (True, f"Senha alterada com sucesso.")
+        else:
+            if response.error:
+                return (False, f"Falha ao alterar a senha: {response.error.message}")
+            return (False, f"Participante com o nome de usuário '{username}' não encontrado.")
+
+    except Exception as e:
+        return (False, f"Ocorreu um erro inesperado no servidor: {e}")

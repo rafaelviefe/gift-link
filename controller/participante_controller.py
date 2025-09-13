@@ -1,7 +1,7 @@
 from typing import Tuple, Optional
 from model.participante import Participante
 from repository import participante_repository
-from utils.seguranca import criar_senha_provisoria, verificar_senha, valida_entrada
+from utils.seguranca import criar_senha_provisoria, verificar_senha, valida_entrada, criptografar_senha
 
 
 def registrar_participante(username: str) -> Tuple[Optional[Participante], str]:
@@ -44,4 +44,14 @@ def login_participante(username: str, senha: str) -> Tuple[Optional[Participante
     else:
         return (None, "Senha incorreta.")
     
+def alterar_senha(username: str, nova_senha: str) -> Tuple[bool, str]:
+    if not valida_entrada(username, nova_senha):
+        return (False, "A nova senha fornecida é inválida.")
 
+    participante_encontrado, msg_busca = participante_repository.buscar_participante(username)
+    if not participante_encontrado:
+        return (False, msg_busca)
+    
+    hash_nova_senha = criptografar_senha(nova_senha)
+
+    return participante_repository.alterar_senha_participante(username, hash_nova_senha)
