@@ -12,9 +12,6 @@ supabase: Client = create_client(url, key)
 
 def criar_organizador(novo_organizador: Organizador) -> Tuple[Optional[Organizador], str]:
     try:
-        if not novo_organizador.get_username() or not novo_organizador.get_senha():
-            return (None, "Nome de usuário e senha são obrigatórios.")
-
         response_check = supabase.table('organizadores').select('id').eq('username', novo_organizador.get_username()).execute()
 
         if response_check.data:
@@ -27,10 +24,33 @@ def criar_organizador(novo_organizador: Organizador) -> Tuple[Optional[Organizad
 
         if response_insert.data:
             id_criado = response_insert.data[0]['id']
-            novo_organizador.id = id_criado
+            novo_organizador.set_id(id_criado)
             return (novo_organizador, f"Organizador '{novo_organizador.get_username()}' criado com sucesso!")
         else:
             error_message = response_insert.error.message if response_insert.error else "Erro desconhecido ao inserir dados."
             return (None, f"Falha ao criar organizador: {error_message}")
+            
+    except Exception as e:
+        return (None, f"Ocorreu um erro inesperado no servidor: {e}")
+
+def buscar_organizador(username: str) -> Tuple[Optional[Organizador], str]:
+    try:
+        response = supabase.table('organizadores').select('*').eq('username', username).execute()
+
+        if response.data:
+            dados_organizador = response.data[0]
+            
+            organizador_encontrado = Organizador(
+                id=dados_organizador.get('id'),
+                username=dados_organizador.get('username'),
+                senha=dados_organizador.get('senha')
+            )
+            return (organizador_encontrado, f"Organizador '{username}' encontrado com sucesso.")
+        
+        else:
+            if response.error:
+                 return (None, f"Falha ao buscar organizador: {response.error.message}")
+            return (None, f"Organizador com o nome de usuário '{username}' não encontrado.")
+        
     except Exception as e:
         return (None, f"Ocorreu um erro inesperado no servidor: {e}")

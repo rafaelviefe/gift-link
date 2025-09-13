@@ -57,6 +57,28 @@ def criar_participante(
     except Exception as e:
         return (None, f"Ocorreu um erro inesperado no servidor: {e}")
 
+def buscar_participante(username: str) -> Tuple[Optional[Participante], str]:
+    try:
+        response = supabase.table('participantes').select('*').eq('username', username).execute()
+
+        if response.data:
+            dados_participante = response.data[0]
+            
+            participante_encontrado = Participante(
+                id=dados_participante.get('id'),
+                username=dados_participante.get('username'),
+                senha=dados_participante.get('senha'),
+                elegivel=dados_participante.get('elegivel')
+            )
+            return (participante_encontrado, f"Participante '{username}' encontrado com sucesso.")
+        
+        else:
+            if response.error:
+                 return (None, f"Falha ao buscar participante: {response.error.message}")
+            return (None, f"Participante com o nome de usuário '{username}' não encontrado.")
+        
+    except Exception as e:
+        return (None, f"Ocorreu um erro inesperado no servidor: {e}")
 
 def listar_participantes() -> Tuple[list, str]:
     try:
