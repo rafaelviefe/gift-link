@@ -8,12 +8,16 @@ from views import (
     tela_organizador,
     tela_participante
 )
-from controller import organizador_controller, participante_controller
+from controller.organizador_controller import OrganizadorController
+from controller.participante_controller import ParticipanteController
 from model.organizador import Organizador
 from model.participante import Participante
 from typing import Optional
 
 def main():
+    organizador_controller = OrganizadorController()
+    participante_controller = ParticipanteController()
+
     organizador_logado: Optional[Organizador] = None
     participante_logado: Optional[Participante] = None
     participante_pendente: Optional[Participante] = None

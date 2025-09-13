@@ -1,57 +1,58 @@
-from typing import Tuple, Optional
+from typing import Tuple, Optional, List
 from model.participante import Participante
-from repository import participante_repository
+from repository.participante_repository import ParticipanteRepository
 from utils.seguranca import criar_senha_provisoria, verificar_senha, valida_entrada, criptografar_senha
 
+class ParticipanteController:
+    def __init__(self):
+        self.__participante_repository = ParticipanteRepository()
 
-def registrar_participante(username: str) -> Tuple[Optional[Participante], str]:
-    senha_crua, hash_senha = criar_senha_provisoria()
+    def registrar_participante(self, username: str) -> Tuple[Optional[Participante], str]:
+        senha_crua, hash_senha = criar_senha_provisoria()
 
-    if not valida_entrada(username, senha_crua):
-        return (None, "Usuário ou senha inválidos.")
+        if not valida_entrada(username, senha_crua):
+            return (None, "Usuário ou senha inválidos.")
 
-    novo_participante = Participante(username=username, senha=hash_senha)
+        novo_participante = Participante(username=username, senha=hash_senha)
 
-    participante, mensagem = participante_repository.criar_participante(
-        novo_participante
-    )
-    if not participante:
-        return None, mensagem
-    return (
-        participante,
-        f"Participante {participante.get_username()} criado com sucesso! A senha provisória é: {senha_crua}",
-    )
+        participante, mensagem = self.__participante_repository.criar_participante(
+            novo_participante
+        )
+        if not participante:
+            return None, mensagem
+        return (
+            participante,
+            f"Participante {participante.get_username()} criado com sucesso! A senha provisória é: {senha_crua}",
+        )
 
-def listar_participantes() -> Tuple[list[Participante], str]:
-    participantes, mensagem = participante_repository.listar_participantes()
-    if participantes == []:
-        return [], mensagem
-    return participantes, mensagem
+    def listar_participantes(self) -> Tuple[List[Participante], str]:
+        participantes, mensagem = self.__participante_repository.listar_participantes()
+        return participantes, mensagem
 
-def login_participante(username: str, senha: str) -> Tuple[Optional[Participante], str]:
-    if not valida_entrada(username, senha):
-        return (None, "Usuário ou senha inválidos.")
+    def login_participante(self, username: str, senha: str) -> Tuple[Optional[Participante], str]:
+        if not valida_entrada(username, senha):
+            return (None, "Usuário ou senha inválidos.")
+        
+        participante_encontrado, msg_busca = self.__participante_repository.buscar_participante(username)
+
+        if not participante_encontrado:
+            return (None, msg_busca)
+
+        senha_salva: str = participante_encontrado.get_senha()
+        
+        if verificar_senha(senha, senha_salva):
+            return (participante_encontrado, "Login realizado com sucesso!")
+        else:
+            return (None, "Senha incorreta.")
     
-    participante_encontrado, msg_busca = participante_repository.buscar_participante(username)
+    def alterar_senha(self, username: str, nova_senha: str) -> Tuple[bool, str]:
+        if not valida_entrada(username, nova_senha):
+            return (False, "A nova senha fornecida é inválida.")
 
-    if not participante_encontrado:
-        return (None, msg_busca)
+        participante_encontrado, msg_busca = self.__participante_repository.buscar_participante(username)
+        if not participante_encontrado:
+            return (False, msg_busca)
+        
+        hash_nova_senha = criptografar_senha(nova_senha)
 
-    senha_salva: str = participante_encontrado.get_senha()
-    
-    if verificar_senha(senha, senha_salva):
-        return (participante_encontrado, "Login realizado com sucesso!")
-    else:
-        return (None, "Senha incorreta.")
-    
-def alterar_senha(username: str, nova_senha: str) -> Tuple[bool, str]:
-    if not valida_entrada(username, nova_senha):
-        return (False, "A nova senha fornecida é inválida.")
-
-    participante_encontrado, msg_busca = participante_repository.buscar_participante(username)
-    if not participante_encontrado:
-        return (False, msg_busca)
-    
-    hash_nova_senha = criptografar_senha(nova_senha)
-
-    return participante_repository.alterar_senha_participante(username, hash_nova_senha)
+        return self.__participante_repository.alterar_senha_participante(username, hash_nova_senha)
