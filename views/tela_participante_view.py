@@ -13,7 +13,7 @@ def criar_janela_participante(participante: Participante):
             )
         ],
         [sg.VPush()],
-        [sg.Button("Visualizar Amigo Secreto", key="-VISUALIZAR-")],
+        [sg.Button("Visualizar Eventos", key="-MEUSEVENTOS-")],
         [sg.Button("Lista de Desejos", key="-DESEJOS-")],
         [sg.Button("Logout", key="-LOGOUT-")],
         [sg.VPush()],

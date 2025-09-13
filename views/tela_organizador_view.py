@@ -15,7 +15,7 @@ def criar_janela_organizador(organizador: Organizador):
         ],
         [sg.VPush()],
         [sg.Button("Participantes", key="-PARTICIPANTES-")],
-        [sg.Button("Sorteios", key="-SORTEIOS-")],
+        [sg.Button("Eventos", key="-EVENTOS-")],
         [sg.Button("Logout", key="-LOGOUT-")],
         [sg.VPush()],
     ]
