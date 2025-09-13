@@ -27,8 +27,7 @@ def criar_organizador(novo_organizador: Organizador) -> Tuple[Optional[Organizad
             novo_organizador.set_id(id_criado)
             return (novo_organizador, f"Organizador '{novo_organizador.get_username()}' criado com sucesso!")
         else:
-            error_message = response_insert.error.message if response_insert.error else "Erro desconhecido ao inserir dados."
-            return (None, f"Falha ao criar organizador: {error_message}")
+            return (None, f"Falha ao criar organizador")
             
     except Exception as e:
         return (None, f"Ocorreu um erro inesperado no servidor: {e}")
@@ -48,8 +47,6 @@ def buscar_organizador(username: str) -> Tuple[Optional[Organizador], str]:
             return (organizador_encontrado, f"Organizador '{username}' encontrado com sucesso.")
         
         else:
-            if response.error:
-                 return (None, f"Falha ao buscar organizador: {response.error.message}")
             return (None, f"Organizador com o nome de usuário '{username}' não encontrado.")
         
     except Exception as e:

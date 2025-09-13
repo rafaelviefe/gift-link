@@ -137,7 +137,7 @@ def main():
                 janela_cadastro_participante = (
                     tela_cadastro_participante_view.criar_janela_cadastro(participantes)
                 )
-            elif evento == "-SORTEIOS-":
+            elif evento == "-EVENTOS-":
                 sg.popup(
                     f"Funcionalidade de '{evento.strip('-')}' será implementada em breve!"
                 )
@@ -148,7 +148,7 @@ def main():
                 janela_participante.close()
                 janela_participante = None
                 janela_inicial = tela_inicial_view.criar_janela_inicial()
-            elif evento in ["-VISUALIZAR-", "-DESEJOS-"]:
+            elif evento in ["-MEUSEVENTOS-", "-DESEJOS-"]:
                 sg.popup(f"Funcionalidade de '{evento.strip('-')}' será implementada em breve!")
 
         elif janela_ativa == janela_cadastro_participante:

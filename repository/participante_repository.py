@@ -48,12 +48,7 @@ def criar_participante(
                 f"Participante '{novo_participante.get_username()}' criado com sucesso!",
             )
         else:
-            error_message = (
-                response_insert.error.message
-                if response_insert.error
-                else "Erro desconhecido ao inserir dados."
-            )
-            return (None, f"Falha ao criar participante: {error_message}")
+            return (None, f"Falha ao criar participante")
     except Exception as e:
         return (None, f"Ocorreu um erro inesperado no servidor: {e}")
 
@@ -73,8 +68,6 @@ def buscar_participante(username: str) -> Tuple[Optional[Participante], str]:
             return (participante_encontrado, f"Participante '{username}' encontrado com sucesso.")
         
         else:
-            if response.error:
-                 return (None, f"Falha ao buscar participante: {response.error.message}")
             return (None, f"Participante com o nome de usuário '{username}' não encontrado.")
         
     except Exception as e:
@@ -107,8 +100,6 @@ def alterar_senha_participante(username: str, nova_senha: str) -> Tuple[bool, st
         if response.data:
             return (True, f"Senha alterada com sucesso.")
         else:
-            if response.error:
-                return (False, f"Falha ao alterar a senha: {response.error.message}")
             return (False, f"Participante com o nome de usuário '{username}' não encontrado.")
 
     except Exception as e:
