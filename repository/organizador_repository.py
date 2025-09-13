@@ -12,8 +12,8 @@ supabase: Client = create_client(url, key)
 
 def criar_organizador(novo_organizador: Organizador) -> Tuple[Optional[Organizador], str]:
     try:
-        if not novo_organizador.get_username() or not novo_organizador.get_senha() or len(novo_organizador.get_senha()) < 6:
-            return (None, "Nome de usuário e senha são obrigatórios. A senha deve ter no mínimo 6 caracteres.")
+        if not novo_organizador.get_username() or not novo_organizador.get_senha():
+            return (None, "Nome de usuário e senha são obrigatórios.")
 
         response_check = supabase.table('organizadores').select('id').eq('username', novo_organizador.get_username()).execute()
 
