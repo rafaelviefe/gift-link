@@ -4,7 +4,6 @@ from typing import Iterable
 
 
 def _format_participantes(participantes: Iterable) -> list:
-    """Return a list of rows for the table from Participante objects."""
     rows = []
     if not participantes:
         return rows
@@ -15,17 +14,12 @@ def _format_participantes(participantes: Iterable) -> list:
         if callable(elegivel):
             eleg = "Sim" if p.is_elegivel() else "Não"
         else:
-            # fallback to attribute access
             eleg = "Sim" if getattr(p, "_Participante__elegivel", False) else "Não"
         rows.append([pid, username, eleg])
     return rows
 
 
-def criar_janela_cadastro(participantes: Iterable | None = None):
-    """Create the participant registration window with a table showing participants.
-
-    participantes: optional iterable of Participante objects to pre-fill the table.
-    """
+def criar_janela_cadastro(participantes: Iterable | None = None):    
     configure_theme()
 
     headings = ["ID", "Username", "Elegível"]
@@ -56,12 +50,10 @@ def criar_janela_cadastro(participantes: Iterable | None = None):
 
 
 def atualizar_tabela(window, participantes: Iterable | None):
-    """Update the table in the given window with the provided participantes list."""
     if window is None:
         return
     rows = _format_participantes(participantes)
     try:
         window["-TABLE-"].update(values=rows)
     except Exception:
-        # in case the element/key doesn't exist, ignore silently
         pass
