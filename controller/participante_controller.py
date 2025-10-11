@@ -1,7 +1,7 @@
 from typing import Tuple, Optional, List
 from model.participante import Participante
 from repository.participante_repository import ParticipanteRepository
-from utils.seguranca import criar_senha_provisoria, verificar_senha, valida_entrada, criptografar_senha
+from utils.seguranca import criar_senha_provisoria, verificar_senha, valida_credenciais, criptografar_senha
 
 class ParticipanteController:
     def __init__(self):
@@ -10,7 +10,7 @@ class ParticipanteController:
     def registrar_participante(self, username: str) -> Tuple[Optional[Participante], str]:
         senha_crua, hash_senha = criar_senha_provisoria()
 
-        if not valida_entrada(username, senha_crua):
+        if not valida_credenciais(username, senha_crua):
             return (None, "Usuário ou senha inválidos.")
 
         novo_participante = Participante(username=username, senha=hash_senha)
@@ -30,7 +30,7 @@ class ParticipanteController:
         return participantes, mensagem
 
     def login_participante(self, username: str, senha: str) -> Tuple[Optional[Participante], str]:
-        if not valida_entrada(username, senha):
+        if not valida_credenciais(username, senha):
             return (None, "Usuário ou senha inválidos.")
         
         participante_encontrado, msg_busca = self.__participante_repository.buscar_participante(username)
@@ -46,7 +46,7 @@ class ParticipanteController:
             return (None, "Senha incorreta.")
     
     def alterar_senha(self, username: str, nova_senha: str) -> Tuple[bool, str]:
-        if not valida_entrada(username, nova_senha):
+        if not valida_credenciais(username, nova_senha):
             return (False, "A nova senha fornecida é inválida.")
 
         participante_encontrado, msg_busca = self.__participante_repository.buscar_participante(username)

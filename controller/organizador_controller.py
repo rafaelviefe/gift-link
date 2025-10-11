@@ -3,7 +3,7 @@ from model.organizador import Organizador
 from model.chave import Chave
 from repository.organizador_repository import OrganizadorRepository
 from repository.chave_repository import ChaveRepository 
-from utils.seguranca import criptografar_senha, verificar_senha, valida_entrada
+from utils.seguranca import criptografar_senha, verificar_senha, valida_credenciais
 
 class OrganizadorController:
     def __init__(self):
@@ -11,7 +11,7 @@ class OrganizadorController:
         self.__chave_repository = ChaveRepository() 
 
     def registrar_organizador(self, username: str, senha: str, chave_acesso_id: str) -> Tuple[Optional[Organizador], str]:
-        if not valida_entrada(username, senha):
+        if not valida_credenciais(username, senha):
             return (None, "Usuário ou senha inválidos.")
         
         chave_para_verificar = Chave(id=chave_acesso_id)
@@ -26,7 +26,7 @@ class OrganizadorController:
         return self.__organizador_repository.criar_organizador(novo_organizador)
 
     def login_organizador(self, username: str, senha: str) -> Tuple[Optional[Organizador], str]:
-        if not valida_entrada(username, senha):
+        if not valida_credenciais(username, senha):
             return (None, "Usuário ou senha inválidos.")
         
         organizador_encontrado, msg_busca = self.__organizador_repository.buscar_organizador(username)
