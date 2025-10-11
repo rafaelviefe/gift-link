@@ -13,19 +13,6 @@ class ParticipanteRepository:
 
     def criar_participante(self, novo_participante: Participante) -> Tuple[Optional[Participante], str]:
         try:
-            response_check = (
-                self.__supabase.table("participantes")
-                .select("id")
-                .eq("username", novo_participante.get_username())
-                .execute()
-            )
-
-            if response_check.data:
-                return (
-                    None,
-                    f"O nome de usuário '{novo_participante.get_username()}' já existe.",
-                )
-
             response_insert = (
                 self.__supabase.table("participantes")
                 .insert(
