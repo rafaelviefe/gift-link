@@ -12,23 +12,26 @@ class OrganizadorRepository:
         self.__supabase: Client = create_client(url, key)
 
     def criar_organizador(self, novo_organizador: Organizador) -> Tuple[Optional[Organizador], str]:
-        try:
-            response_check = self.__supabase.table('organizadores').select('id').eq('username', novo_organizador.get_username()).execute()
+        username = novo_organizador.get_username()
+        senha = novo_organizador.get_senha()
 
-            if response_check.data:
-                return (None, f"O nome de usuário '{novo_organizador.get_username()}' já existe.")
+        try:
+            organizador_existente, _ = self.buscar_organizador(username)
+
+            if organizador_existente:
+                return (None, f"O nome de usuário '{username}' já existe.")
 
             response_insert = self.__supabase.table('organizadores').insert({
-                "username": novo_organizador.get_username(),
-                "senha": novo_organizador.get_senha()
+                "username": username,
+                "senha": senha
             }).execute()
 
             if response_insert.data:
                 id_criado = response_insert.data[0]['id']
                 novo_organizador.set_id(id_criado)
-                return (novo_organizador, f"Organizador '{novo_organizador.get_username()}' criado com sucesso!")
+                return (novo_organizador, f"Organizador '{username}' criado com sucesso!")
             else:
-                return (None, f"Falha ao criar organizador")
+                return (None, "Falha ao criar organizador")
                 
         except Exception as e:
             return (None, f"Ocorreu um erro inesperado no servidor: {e}")
