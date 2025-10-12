@@ -12,7 +12,9 @@ class OrganizadorController:
         self.__seguranca = Seguranca()
 
     def registrar_organizador(self, username: str, senha: str, chave_acesso_id: str) -> Tuple[Optional[Organizador], str]:
-        if not self.__seguranca.valida_credenciais(username, senha):
+
+        credenciais_validas = self.__seguranca.valida_credenciais(username, senha)
+        if not credenciais_validas:
             return (None, "Usuário ou senha inválidos.")
         
         chave_para_verificar = Chave(id=chave_acesso_id)
