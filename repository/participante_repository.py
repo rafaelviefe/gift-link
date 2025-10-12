@@ -11,7 +11,7 @@ class ParticipanteRepository:
         key: str = os.environ.get("SUPABASE_KEY")
         self.__supabase: Client = create_client(url, key)
 
-    def criar_participante(self, novo_participante: Participante) -> Tuple[Optional[Participante], str]:
+    def criar(self, novo_participante: Participante) -> Tuple[Optional[Participante], str]:
         try:
             response_insert = (
                 self.__supabase.table("participantes")
@@ -36,7 +36,7 @@ class ParticipanteRepository:
         except Exception as e:
             return (None, f"Ocorreu um erro inesperado no servidor: {e}")
 
-    def buscar_participante(self, username: str) -> Tuple[Optional[Participante], str]:
+    def buscar(self, username: str) -> Tuple[Optional[Participante], str]:
         try:
             response = self.__supabase.table('participantes').select('*').eq('username', username).execute()
 
@@ -57,7 +57,7 @@ class ParticipanteRepository:
         except Exception as e:
             return (None, f"Ocorreu um erro inesperado no servidor: {e}")
 
-    def listar_participantes(self) -> Tuple[List[Participante], str]:
+    def listar(self) -> Tuple[List[Participante], str]:
         try:
             response = self.__supabase.table("participantes").select("*").execute()
 
@@ -77,7 +77,7 @@ class ParticipanteRepository:
         except Exception as e:
             return ([], f"Ocorreu um erro inesperado no servidor: {e}")
 
-    def alterar_senha_participante(self, username: str, nova_senha: str) -> Tuple[bool, str]:
+    def alterar_senha(self, username: str, nova_senha: str) -> Tuple[bool, str]:
         try:
             response = self.__supabase.table("participantes").update({"senha": nova_senha, "elegivel": True}).eq("username", username).execute()
 

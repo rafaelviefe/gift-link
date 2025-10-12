@@ -38,7 +38,7 @@ class TelaCadastroOrganizador:
                 senha = valores["-SENHA-"]
                 chave = valores["-CHAVE-"]
 
-                organizador, msg = self.__organizador_controller.registrar_organizador(username, senha, chave)
+                organizador, msg = self.__organizador_controller.registrar(username, senha, chave)
 
                 if organizador:
                     sg.popup_ok(msg)

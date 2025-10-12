@@ -23,7 +23,7 @@ class TelaCadastroParticipante:
         return rows
 
     def __criar_janela(self):
-        participantes, _ = self.__participante_controller.listar_participantes()
+        participantes, _ = self.__participante_controller.listar()
         
         headings = ["ID", "Username", "Elegível"]
         table_values = self._format_participantes(participantes)
@@ -51,7 +51,7 @@ class TelaCadastroParticipante:
     def __atualizar_tabela(self):
         if not self.__janela:
             return
-        participantes, _ = self.__participante_controller.listar_participantes()
+        participantes, _ = self.__participante_controller.listar()
         rows = self._format_participantes(participantes)
         self.__janela["-TABLE-"].update(values=rows)
 
@@ -67,7 +67,7 @@ class TelaCadastroParticipante:
             
             if evento == "-SUBMIT-":
                 username = valores["-USERNAME-"]
-                _, mensagem = self.__participante_controller.registrar_participante(username)
+                _, mensagem = self.__participante_controller.registrar(username)
                 sg.popup(mensagem)
                 self.__janela["-USERNAME-"].update("")
                 self.__atualizar_tabela()

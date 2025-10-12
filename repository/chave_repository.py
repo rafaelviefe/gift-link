@@ -11,7 +11,7 @@ class ChaveRepository:
         key: str = os.environ.get("SUPABASE_KEY")
         self.__supabase: Client = create_client(url, key)
 
-    def verificar_chave(self, chave_para_verificar: Chave) -> Tuple[bool, str]:
+    def verificar(self, chave_para_verificar: Chave) -> Tuple[bool, str]:
         try:
             chave_id = chave_para_verificar.get_id()
             response = self.__supabase.table('chave').select('id').eq('id', chave_id).execute()

@@ -44,7 +44,7 @@ class TelaLogin:
                 senha = valores["-SENHA-"]
 
                 if valores['-ORGANIZADOR-']:
-                    organizador, mensagem = self.__organizador_controller.login_organizador(username, senha)
+                    organizador, mensagem = self.__organizador_controller.login(username, senha)
                     if organizador:
                         sg.popup_ok(mensagem)
                         self.fechar()
@@ -52,7 +52,7 @@ class TelaLogin:
                     else:
                         sg.popup_error(mensagem)
                 else:
-                    participante, mensagem = self.__participante_controller.login_participante(username, senha)
+                    participante, mensagem = self.__participante_controller.login(username, senha)
                     if participante:
                         if not participante.is_elegivel():
                             sg.popup("Você precisa alterar sua senha para continuar.")
