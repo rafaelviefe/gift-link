@@ -11,6 +11,12 @@ class OrganizadorRepository:
         key: str = os.environ.get("SUPABASE_KEY")
         self.__supabase: Client = create_client(url, key)
 
+    def persistir_organizador(self, username: str, senha: str):
+        return self.__supabase.table('organizadores').insert({
+            "username": username,
+            "senha": senha
+        }).execute()
+
     def criar_organizador(self, novo_organizador: Organizador) -> Tuple[Optional[Organizador], str]:
         username = novo_organizador.get_username()
         senha = novo_organizador.get_senha()
@@ -21,10 +27,7 @@ class OrganizadorRepository:
             if organizador_existente:
                 return (None, f"O nome de usuário '{username}' já existe.")
 
-            response_insert = self.__supabase.table('organizadores').insert({
-                "username": username,
-                "senha": senha
-            }).execute()
+            response_insert = self.persistir_organizador(username, senha)
 
             if response_insert.data:
                 id_criado = response_insert.data[0]['id']
