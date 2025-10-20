@@ -29,7 +29,8 @@ class OrganizadorController:
         return self.__organizador_repository.criar(novo_organizador)
 
     def login(self, username: str, senha: str) -> Tuple[Optional[Organizador], str]:
-        if not self.__seguranca.valida_credenciais(username, senha):
+        credenciais_validas = self.__seguranca.valida_credenciais(username, senha)
+        if not credenciais_validas:
             return (None, "Usuário ou senha inválidos.")
         
         organizador_encontrado, msg_busca = self.__organizador_repository.buscar(username)
@@ -38,8 +39,8 @@ class OrganizadorController:
             return (None, msg_busca)
 
         senha_salva: str = organizador_encontrado.get_senha()
-        
-        if self.__seguranca.verificar_senha(senha, senha_salva):
+        senha_correta = self.__seguranca.verificar_senha(senha, senha_salva)
+        if senha_correta:
             return (organizador_encontrado, "Login realizado com sucesso!")
         else:
             return (None, "Senha incorreta.")
