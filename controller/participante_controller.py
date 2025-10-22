@@ -35,7 +35,8 @@ class ParticipanteController:
         return participantes, mensagem
 
     def login(self, username: str, senha: str) -> Tuple[Optional[Participante], str]:
-        if not self.__seguranca.valida_credenciais(username, senha):
+        credenciais_validas = self.__seguranca.valida_credenciais(username, senha)
+        if not credenciais_validas:
             return (None, "Usuário ou senha inválidos.")
         
         participante_encontrado, msg_busca = self.__participante_repository.buscar(username)
@@ -45,7 +46,8 @@ class ParticipanteController:
 
         senha_salva: str = participante_encontrado.get_senha()
         
-        if self.__seguranca.verificar_senha(senha, senha_salva):
+        senha_correta = self.__seguranca.verificar_senha(senha, senha_salva)
+        if senha_correta:
             return (participante_encontrado, "Login realizado com sucesso!")
         else:
             return (None, "Senha incorreta.")

@@ -39,6 +39,7 @@ class OrganizadorController:
             return (None, msg_busca)
 
         senha_salva: str = organizador_encontrado.get_senha()
+        
         senha_correta = self.__seguranca.verificar_senha(senha, senha_salva)
         if senha_correta:
             return (organizador_encontrado, "Login realizado com sucesso!")
