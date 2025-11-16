@@ -1,9 +1,8 @@
 import FreeSimpleGUI as sg
 from views.theme import configure_theme
 from model.organizador import Organizador
-from controller.participante_controller import ParticipanteController
 
-class TelaOrganizador:
+class TelaEventosMenu:
     def __init__(self, organizador: Organizador):
         configure_theme()
         self.__organizador = organizador
@@ -13,18 +12,18 @@ class TelaOrganizador:
         layout = [
             [
                 sg.Text(
-                    f"Bem-vindo, {self.__organizador.get_username()}!",
+                    "Gerenciar Eventos",
                     font=("Helvetica", 20, "bold"),
                 )
             ],
             [sg.VPush()],
-            [sg.Button("Participantes", key="-PARTICIPANTES-")],
-            [sg.Button("Eventos", key="-EVENTOS-")],
-            [sg.Button("Logout", key="-LOGOUT-")],
+            [sg.Button("Cadastrar", key="-CADASTRO_EVENTO-")],
+            [sg.Button("Detalhes", key="-DETALHES_EVENTO-")],
+            [sg.Button("Voltar", key="-VOLTAR-")],
             [sg.VPush()],
         ]
         return sg.Window(
-            f"Painel do Organizador - {self.__organizador.get_username()}",
+            "Menu de Eventos",
             layout,
             finalize=True,
             element_justification="center",
@@ -37,21 +36,16 @@ class TelaOrganizador:
         while True:
             evento, valores = self.__janela.read()
 
-            if evento == sg.WIN_CLOSED:
+            if evento == sg.WIN_CLOSED or evento == "-VOLTAR-":
                 self.fechar()
-                return "sair", None, None
+                return "painel_organizador", self.__organizador, None
             
-            if evento == '-LOGOUT-':
+            if evento == '-CADASTRO_EVENTO-':
                 self.fechar()
-                return "logout", None, None
-
-            if evento == '-PARTICIPANTES-':
-                self.fechar()
-                return "gerenciar_participantes", None, None
+                return "cadastro_evento", self.__organizador, None
             
-            if evento == '-EVENTOS-':
-                self.fechar()
-                return "gerenciar_eventos", None, None
+            if evento == '-DETALHES_EVENTO-':
+                sg.popup(f"Funcionalidade de '{evento.strip('-')}' estará disponível em breve!")
 
     def fechar(self):
         if self.__janela:

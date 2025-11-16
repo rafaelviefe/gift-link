@@ -58,3 +58,23 @@ class OrganizadorRepository:
             
         except Exception as e:
             return (None, f"Ocorreu um erro inesperado no servidor: {e}")
+
+    def buscar_por_id(self, id_organizador: int) -> Tuple[Optional[Organizador], str]:
+        try:
+            response = self.__supabase.table('organizadores').select('*').eq('id', id_organizador).execute()
+
+            if response.data:
+                dados_organizador = response.data[0]
+                
+                organizador_encontrado = Organizador(
+                    id=dados_organizador.get('id'),
+                    username=dados_organizador.get('username'),
+                    senha=dados_organizador.get('senha')
+                )
+                return (organizador_encontrado, f"Organizador encontrado com sucesso.")
+            
+            else:
+                return (None, f"Organizador com o id '{id_organizador}' não encontrado.")
+            
+        except Exception as e:
+            return (None, f"Ocorreu um erro inesperado no servidor: {e}")

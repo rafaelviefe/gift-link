@@ -2,6 +2,7 @@ import FreeSimpleGUI as sg
 from typing import Optional
 from controller.organizador_controller import OrganizadorController
 from controller.participante_controller import ParticipanteController
+from controller.evento_controller import EventoController
 from model.organizador import Organizador
 from model.participante import Participante
 from views.tela_inicial import TelaInicial
@@ -11,11 +12,14 @@ from views.tela_organizador import TelaOrganizador
 from views.tela_participante import TelaParticipante
 from views.tela_alterar_senha import TelaAlterarSenha
 from views.tela_cadastro_participante import TelaCadastroParticipante
+from views.tela_eventos_menu import TelaEventosMenu
+from views.tela_cadastro_evento import TelaCadastroEvento
 
 class App:
     def __init__(self):
         self.__organizador_controller = OrganizadorController()
         self.__participante_controller = ParticipanteController()
+        self.__evento_controller = EventoController()
         self.__organizador_logado: Optional[Organizador] = None
         self.__participante_logado: Optional[Participante] = None
 
@@ -46,17 +50,29 @@ class App:
                  elif proxima_tela_str == "alterar_senha":
                     tela_atual = TelaAlterarSenha(self.__participante_controller, evento)
 
-            elif isinstance(tela_atual, (TelaOrganizador, TelaParticipante)):
+            elif isinstance(tela_atual, (TelaOrganizador, TelaCadastroParticipante, TelaEventosMenu)):
                 if proxima_tela_str == "logout":
                     self.__organizador_logado = None
                     self.__participante_logado = None
                     tela_atual = TelaInicial()
                 elif proxima_tela_str == "gerenciar_participantes":
                      tela_atual = TelaCadastroParticipante(self.__participante_controller, self.__organizador_logado)
+                elif proxima_tela_str == "gerenciar_eventos":
+                     tela_atual = TelaEventosMenu(self.__organizador_logado)
+                elif proxima_tela_str == "painel_organizador":
+                     tela_atual = TelaOrganizador(self.__organizador_logado)
+                elif proxima_tela_str == "cadastro_evento":
+                     tela_atual = TelaCadastroEvento(self.__evento_controller, self.__organizador_logado)
+
+            elif isinstance(tela_atual, TelaParticipante):
+                if proxima_tela_str == "logout":
+                    self.__organizador_logado = None
+                    self.__participante_logado = None
+                    tela_atual = TelaInicial()
             
-            elif isinstance(tela_atual, TelaCadastroParticipante):
-                if proxima_tela_str == "painel_organizador":
-                    tela_atual = TelaOrganizador(self.__organizador_logado)
+            elif isinstance(tela_atual, TelaCadastroEvento):
+                 if proxima_tela_str == "menu_eventos":
+                      tela_atual = TelaEventosMenu(self.__organizador_logado)
 
         if hasattr(tela_atual, 'fechar'):
             tela_atual.fechar()
