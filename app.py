@@ -3,6 +3,7 @@ from typing import Optional
 from controller.organizador_controller import OrganizadorController
 from controller.participante_controller import ParticipanteController
 from controller.evento_controller import EventoController
+from controller.item_controller import ItemController
 from model.organizador import Organizador
 from model.participante import Participante
 from views.tela_inicial import TelaInicial
@@ -14,12 +15,14 @@ from views.tela_alterar_senha import TelaAlterarSenha
 from views.tela_cadastro_participante import TelaCadastroParticipante
 from views.tela_eventos_menu import TelaEventosMenu
 from views.tela_cadastro_evento import TelaCadastroEvento
+from views.tela_lista_desejos import TelaListaDesejos
 
 class App:
     def __init__(self):
         self.__organizador_controller = OrganizadorController()
         self.__participante_controller = ParticipanteController()
         self.__evento_controller = EventoController()
+        self.__item_controller = ItemController()
         self.__organizador_logado: Optional[Organizador] = None
         self.__participante_logado: Optional[Participante] = None
 
@@ -69,10 +72,16 @@ class App:
                     self.__organizador_logado = None
                     self.__participante_logado = None
                     tela_atual = TelaInicial()
+                elif proxima_tela_str == "lista_desejos":
+                    tela_atual = TelaListaDesejos(self.__item_controller, self.__participante_logado)
             
             elif isinstance(tela_atual, TelaCadastroEvento):
                  if proxima_tela_str == "menu_eventos":
                       tela_atual = TelaEventosMenu(self.__organizador_logado)
+            
+            elif isinstance(tela_atual, TelaListaDesejos):
+                if proxima_tela_str == "painel_participante":
+                    tela_atual = TelaParticipante(self.__participante_logado)
 
         if hasattr(tela_atual, 'fechar'):
             tela_atual.fechar()
