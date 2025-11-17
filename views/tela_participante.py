@@ -44,7 +44,11 @@ class TelaParticipante:
                 self.fechar()
                 return "logout", None, None
             
-            if evento in ["-MEUSEVENTOS-", "-DESEJOS-"]:
+            if evento == "-DESEJOS-":
+                self.fechar()
+                return "lista_desejos", None, None
+            
+            if evento == "-MEUSEVENTOS-":
                 sg.popup(f"Funcionalidade de '{evento.strip('-')}' será implementada em breve!")
 
     def fechar(self):
