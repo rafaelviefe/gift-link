@@ -15,14 +15,17 @@ class TelaOrganizador:
             [
                 sg.Text(
                     f"Bem-vindo, {self.__organizador.get_username()}!",
-                    font=("Helvetica", 20, "bold"),
+                    font=("Helvetica", 24, "bold"),
                 )
             ],
             [sg.VPush()],
-            [sg.Button("Participantes", key="-PARTICIPANTES-")],
-            [sg.Button("Eventos", key="-EVENTOS-")],
-            [sg.Button("Sorteios", key="-SORTEIOS-")], # Botão Novo
-            [sg.Button("Logout", key="-LOGOUT-")],
+            [sg.Button("Participantes", key="-PARTICIPANTES-", size=(20, 2), font=("Helvetica", 14))],
+            [sg.Text("")],  # Espaçamento
+            [sg.Button("Eventos", key="-EVENTOS-", size=(20, 2), font=("Helvetica", 14))],
+            [sg.Text("")],  # Espaçamento
+            [sg.Button("Sorteios", key="-SORTEIOS-", size=(20, 2), font=("Helvetica", 14))],
+            [sg.Text("")],  # Espaçamento
+            [sg.Button("Logout", key="-LOGOUT-", size=(20, 2), font=("Helvetica", 14), button_color=("white", "#d9534f"))],
             [sg.VPush()],
         ]
         return sg.Window(
@@ -30,7 +33,7 @@ class TelaOrganizador:
             layout,
             finalize=True,
             element_justification="center",
-            size=(500, 400),
+            size=(700, 600),
         )
 
     def abrir(self):
