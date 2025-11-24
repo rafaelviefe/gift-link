@@ -82,3 +82,38 @@ class SorteioRepository:
 
             except Exception as e:
                 return [], f"Erro ao buscar eventos: {e}"
+
+    def listar_por_evento(self, id_evento: int) -> Tuple[List[Dict], str]:
+            """
+            Retorna TODOS os pares de um evento (A visão do Organizador).
+            """
+            try:
+                # Precisamos de aliases para distinguir origem e destino,
+                # pois ambos apontam para a tabela 'participantes'
+                response = (
+                    self.__supabase.table("sorteios")
+                    .select(
+                        "id_participante_origem, "
+                        "origem:participantes!id_participante_origem(username), "
+                        "destino:participantes!id_participante_destino(username)"
+                    )
+                    .eq("id_evento", id_evento)
+                    .execute()
+                )
+
+                if response.data:
+                    pares = []
+                    for registro in response.data:
+                        nome_quem_tirou = registro['origem']['username']
+                        nome_quem_foi_tirado = registro['destino']['username']
+
+                        pares.append({
+                            "quem_tirou": nome_quem_tirou,
+                            "quem_foi_tirado": nome_quem_foi_tirado
+                        })
+                    return pares, "Mapeamento carregado com sucesso."
+                else:
+                    return [], "Nenhum sorteio encontrado para este evento."
+
+            except Exception as e:
+                return [], f"Erro ao buscar mapeamento: {e}"

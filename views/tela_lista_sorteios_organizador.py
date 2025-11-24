@@ -87,8 +87,7 @@ class TelaListaSorteios:
             if evt == "-ABRIR-":
                 if evento_selecionado:
                     self.fechar()
-                    # Retorna o evento selecionado para o App abrir a tela de realização
-                    return "realizar_sorteio", evento_selecionado, None
+                    return "acao_sorteio", evento_selecionado, None
 
     def fechar(self):
         if self.__janela:

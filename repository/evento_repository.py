@@ -1,10 +1,13 @@
 import os
+from typing import List, Optional, Tuple
+
 from dotenv import load_dotenv
-from supabase import create_client, Client
-from typing import Optional, Tuple, List
+from supabase import Client, create_client
+
 from model.evento import Evento
 from model.status_evento import StatusEvento
 from repository.organizador_repository import OrganizadorRepository
+
 
 class EventoRepository:
     def __init__(self):
@@ -51,6 +54,7 @@ class EventoRepository:
                     {
                         "nome": evento.get_nome(),
                         "descricao": evento.get_descricao(),
+                        "status": evento.get_status().value,
                     }
                 )
                 .eq("id", evento.get_id())
@@ -71,10 +75,10 @@ class EventoRepository:
             if response.data:
                 eventos = []
                 for item in response.data:
-                    
+
                     id_organizador = item.get("id_organizador")
                     organizador, msg = self.__organizador_repository.buscar_por_id(id_organizador)
-                    
+
                     if not organizador:
                         continue
 

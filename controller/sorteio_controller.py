@@ -14,6 +14,8 @@ class SorteioController:
         self.__evento_repository = EventoRepository()
 
     def realizar_sorteio(self, evento: Evento, participantes_selecionados: List[Participante]) -> Tuple[bool, str]:
+        if evento.get_status() != StatusEvento.PREPARANDO:
+            return False, f"Este evento já está com status '{evento.get_status().value}' e não pode ser sorteado novamente."
 
         qtd = len(participantes_selecionados)
         min_p = evento.get_min_participantes()
@@ -49,11 +51,9 @@ class SorteioController:
                 "id_participante_destino": amigo_secreto.get_id()
             })
 
-        # 4. Persistência
         sucesso, msg = self.__sorteio_repository.salvar_sorteio(pares_para_salvar)
 
         if sucesso:
-            # 5. Atualizar status do evento
             evento.set_status(StatusEvento.SORTEADO)
             self.__evento_repository.editar(evento) # Reutilizando o repo existente para salvar status
             return True, "Sorteio realizado com sucesso! Os participantes já podem ver seus amigos secretos."
@@ -72,3 +72,6 @@ class SorteioController:
                 return [], "Participante inválido."
 
             return self.__sorteio_repository.listar_por_participante(participante.get_id())
+
+    def ver_mapeamento_geral(self, evento: Evento) -> Tuple[List[Dict], str]:
+            return self.__sorteio_repository.listar_por_evento(evento.get_id())

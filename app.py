@@ -8,6 +8,7 @@ from controller.organizador_controller import OrganizadorController
 from controller.participante_controller import ParticipanteController
 from model.organizador import Organizador
 from model.participante import Participante
+from model.status_evento import StatusEvento
 from views.tela_alterar_senha import TelaAlterarSenha
 from views.tela_cadastro_evento import TelaCadastroEvento
 from views.tela_cadastro_organizador import TelaCadastroOrganizador
@@ -25,6 +26,7 @@ from views.tela_meus_sorteios import TelaMeusSorteios
 from views.tela_organizador import TelaOrganizador
 from views.tela_participante import TelaParticipante
 from views.tela_realizar_sorteio import TelaRealizarSorteio
+from views.tela_vizualizar_mapeio_sorteio_organizador import TelaVisualizarSorteioGeral
 
 
 class App:
@@ -93,13 +95,23 @@ class App:
                  if proxima_tela_str == "menu_eventos":
                       tela_atual = TelaEventosMenu(self.__organizador_logado)
 
-            # --- Fluxo de Sorteios (Organizador) ---
             elif isinstance(tela_atual, TelaListaSorteios):
                 if proxima_tela_str == "painel_organizador":
                     tela_atual = TelaOrganizador(self.__organizador_logado)
-                elif proxima_tela_str == "realizar_sorteio":
-                    # 'evento' aqui é o objeto Evento passado pela lista
-                    tela_atual = TelaRealizarSorteio(evento, self.__organizador_logado)
+
+                elif proxima_tela_str == "acao_sorteio":
+                    # Note que mudei a string de retorno na view abaixo para "acao_sorteio"
+                    # 'evento' é o objeto que veio da lista
+
+                    if evento.get_status() == StatusEvento.PREPARANDO:
+                        tela_atual = TelaRealizarSorteio(evento, self.__organizador_logado)
+                    else:
+                        # Se já foi sorteado ou finalizado, mostra o resultado
+                        tela_atual = TelaVisualizarSorteioGeral(evento, self.__organizador_logado)
+
+            elif isinstance(tela_atual, TelaVisualizarSorteioGeral):
+                    if proxima_tela_str == "menu_sorteios":
+                        tela_atual = TelaListaSorteios(self.__organizador_logado)
 
             elif isinstance(tela_atual, TelaRealizarSorteio):
                 if proxima_tela_str == "menu_eventos":
