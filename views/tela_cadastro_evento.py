@@ -1,9 +1,12 @@
-import FreeSimpleGUI as sg
-from views.theme import configure_theme
 from typing import Iterable, List, Optional
+
+import FreeSimpleGUI as sg
+
 from controller.evento_controller import EventoController
-from model.organizador import Organizador
 from model.evento import Evento
+from model.organizador import Organizador
+from views.theme import configure_theme
+
 
 class TelaCadastroEvento:
     def __init__(self, evento_controller: EventoController, organizador: Organizador):
@@ -38,10 +41,11 @@ class TelaCadastroEvento:
             [sg.Text("Descrição:", size=(10, 1)), sg.InputText(key="-DESCRICAO-")],
             [
                 sg.Text("Min Part:", size=(10, 1)),
-                sg.InputText(key="-MIN_PART-", size=(5, 1)),
+                sg.InputText(key="-MIN_PART-", size=(10, 1), tooltip="Digite apenas números inteiros"),
                 sg.Text("Max Part:", size=(10, 1)),
-                sg.InputText(key="-MAX_PART-", size=(5, 1)),
+                sg.InputText(key="-MAX_PART-", size=(10, 1), tooltip="Digite apenas números inteiros"),
             ],
+            [sg.Text("", key="-MSG_CADASTRO-", text_color="red", size=(50, 1))],
             [sg.Button("Cadastrar Evento", key="-SUBMIT_CADASTRO-")],
         ]
 
@@ -122,13 +126,14 @@ class TelaCadastroEvento:
         self.__janela["-DESCRICAO-"].update("")
         self.__janela["-MIN_PART-"].update("")
         self.__janela["-MAX_PART-"].update("")
+        self.__janela["-MSG_CADASTRO-"].update("")
 
     def __obter_evento_selecionado(self, valores) -> Optional[Evento]:
         try:
             indices_selecionados = valores["-TABLE-"]
             if not indices_selecionados:
                 return None
-            
+
             indice_evento = indices_selecionados[0]
             evento_selecionado = self.__eventos[indice_evento]
             return evento_selecionado
@@ -149,7 +154,7 @@ class TelaCadastroEvento:
         self.__janela["-SUBMIT_EDICAO-"].update(disabled=True)
         self.__janela["-CANCEL_EDICAO-"].update(disabled=True)
         self.__janela["-EDIT_TEXT-"].update("Selecione um evento na tabela para editar.")
-        
+
     def abrir(self):
         self.__janela = self.__criar_janela()
         evento_em_edicao = None
@@ -164,8 +169,25 @@ class TelaCadastroEvento:
             if evento == "-SUBMIT_CADASTRO-":
                 nome = valores["-NOME-"]
                 descricao = valores["-DESCRICAO-"]
-                min_part = valores["-MIN_PART-"]
-                max_part = valores["-MAX_PART-"]
+                min_part_str = valores["-MIN_PART-"].strip()
+                max_part_str = valores["-MAX_PART-"].strip()
+
+                # Validação de entrada antes de enviar ao controller
+                try:
+                    if not min_part_str or not max_part_str:
+                        self.__janela["-MSG_CADASTRO-"].update("Por favor, preencha os campos de mínimo e máximo de participantes.")
+                        sg.popup_error("Por favor, preencha os campos de mínimo e máximo de participantes.")
+                        continue
+
+                    min_part = int(min_part_str)
+                    max_part = int(max_part_str)
+                except ValueError:
+                    self.__janela["-MSG_CADASTRO-"].update("⚠️ Os valores devem ser números inteiros válidos (ex: 2, 10, 20)")
+                    sg.popup_error("Os valores de mínimo e máximo de participantes devem ser números inteiros válidos.\n\nExemplos válidos: 2, 4, 10, 20")
+                    continue
+
+                # Limpa mensagem de erro se passou na validação
+                self.__janela["-MSG_CADASTRO-"].update("")
 
                 _, mensagem = self.__evento_controller.registrar(
                     nome, descricao, min_part, max_part, self.__organizador
@@ -180,15 +202,15 @@ class TelaCadastroEvento:
                     self.__habilitar_edicao(evento_em_edicao)
                 else:
                     self.__desabilitar_edicao()
-            
+
             if evento == "-SUBMIT_EDICAO-":
                 if evento_em_edicao:
                     novo_nome = valores["-NOME_EDIT-"]
                     nova_descricao = valores["-DESCRICAO_EDIT-"]
-                    
+
                     _, msg = self.__evento_controller.editar(evento_em_edicao, novo_nome, nova_descricao)
                     sg.popup(msg)
-                    
+
                     evento_em_edicao = None
                     self.__desabilitar_edicao()
                     self.__atualizar_tabela()

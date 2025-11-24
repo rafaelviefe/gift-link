@@ -1,6 +1,8 @@
 import FreeSimpleGUI as sg
-from views.theme import configure_theme
+
 from model.participante import Participante
+from views.theme import configure_theme
+
 
 class TelaParticipante:
     def __init__(self, participante: Participante):
@@ -35,21 +37,22 @@ class TelaParticipante:
 
         while True:
             evento, valores = self.__janela.read()
-            
+
             if evento == sg.WIN_CLOSED:
                 self.fechar()
                 return "sair", None, None
-            
+
             if evento == '-LOGOUT-':
                 self.fechar()
                 return "logout", None, None
-            
+
             if evento == "-DESEJOS-":
                 self.fechar()
                 return "lista_desejos", None, None
-            
+
             if evento == "-MEUSEVENTOS-":
-                sg.popup(f"Funcionalidade de '{evento.strip('-')}' será implementada em breve!")
+                self.fechar()
+                return "meus_sorteios", None, None
 
     def fechar(self):
         if self.__janela:

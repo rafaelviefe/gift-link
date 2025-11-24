@@ -1,14 +1,15 @@
 import FreeSimpleGUI as sg
-from views.theme import configure_theme
+
 from model.organizador import Organizador
-from controller.participante_controller import ParticipanteController
+from views.theme import configure_theme
+
 
 class TelaOrganizador:
     def __init__(self, organizador: Organizador):
         configure_theme()
         self.__organizador = organizador
         self.__janela = None
-    
+
     def __criar_janela(self):
         layout = [
             [
@@ -20,6 +21,7 @@ class TelaOrganizador:
             [sg.VPush()],
             [sg.Button("Participantes", key="-PARTICIPANTES-")],
             [sg.Button("Eventos", key="-EVENTOS-")],
+            [sg.Button("Sorteios", key="-SORTEIOS-")], # Botão Novo
             [sg.Button("Logout", key="-LOGOUT-")],
             [sg.VPush()],
         ]
@@ -40,7 +42,7 @@ class TelaOrganizador:
             if evento == sg.WIN_CLOSED:
                 self.fechar()
                 return "sair", None, None
-            
+
             if evento == '-LOGOUT-':
                 self.fechar()
                 return "logout", None, None
@@ -48,10 +50,14 @@ class TelaOrganizador:
             if evento == '-PARTICIPANTES-':
                 self.fechar()
                 return "gerenciar_participantes", None, None
-            
+
             if evento == '-EVENTOS-':
                 self.fechar()
                 return "gerenciar_eventos", None, None
+
+            if evento == '-SORTEIOS-': # Tratamento do novo botão
+                self.fechar()
+                return "menu_sorteios", self.__organizador, None
 
     def fechar(self):
         if self.__janela:

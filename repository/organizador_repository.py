@@ -1,8 +1,11 @@
 import os
+from typing import Optional, Tuple
+
 from dotenv import load_dotenv
-from supabase import create_client, Client
-from typing import Tuple, Optional
+from supabase import Client, create_client
+
 from model.organizador import Organizador
+
 
 class OrganizadorRepository:
     def __init__(self):
@@ -35,7 +38,7 @@ class OrganizadorRepository:
                 return (novo_organizador, f"Organizador '{username}' criado com sucesso!")
             else:
                 return (None, "Falha ao criar organizador")
-                
+
         except Exception as e:
             return (None, f"Ocorreu um erro inesperado no servidor: {e}")
 
@@ -45,17 +48,17 @@ class OrganizadorRepository:
 
             if response.data:
                 dados_organizador = response.data[0]
-                
+
                 organizador_encontrado = Organizador(
                     id=dados_organizador.get('id'),
                     username=dados_organizador.get('username'),
                     senha=dados_organizador.get('senha')
                 )
                 return (organizador_encontrado, f"Organizador '{username}' encontrado com sucesso.")
-            
+
             else:
                 return (None, f"Organizador com o nome de usuário '{username}' não encontrado.")
-            
+
         except Exception as e:
             return (None, f"Ocorreu um erro inesperado no servidor: {e}")
 
@@ -65,16 +68,16 @@ class OrganizadorRepository:
 
             if response.data:
                 dados_organizador = response.data[0]
-                
+
                 organizador_encontrado = Organizador(
                     id=dados_organizador.get('id'),
                     username=dados_organizador.get('username'),
                     senha=dados_organizador.get('senha')
                 )
                 return (organizador_encontrado, f"Organizador encontrado com sucesso.")
-            
+
             else:
                 return (None, f"Organizador com o id '{id_organizador}' não encontrado.")
-            
+
         except Exception as e:
             return (None, f"Ocorreu um erro inesperado no servidor: {e}")
