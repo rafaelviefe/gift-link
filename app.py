@@ -9,24 +9,28 @@ from controller.participante_controller import ParticipanteController
 from model.organizador import Organizador
 from model.participante import Participante
 from model.status_evento import StatusEvento
-from views.tela_alterar_senha import TelaAlterarSenha
-from views.tela_cadastro_evento import TelaCadastroEvento
+
+# Views de Autenticação e Cadastro
+from views.tela_inicial import TelaInicial
+from views.tela_login import TelaLogin
 from views.tela_cadastro_organizador import TelaCadastroOrganizador
+from views.tela_alterar_senha import TelaAlterarSenha
+
+# Views do Organizador
+from views.tela_organizador import TelaOrganizador
 from views.tela_cadastro_participante import TelaCadastroParticipante
 from views.tela_eventos_menu import TelaEventosMenu
-
-# Views existentes
-from views.tela_inicial import TelaInicial
-from views.tela_lista_desejos import TelaListaDesejos
-
-# Novas Views (Sorteio)
+from views.tela_cadastro_evento import TelaCadastroEvento
 from views.tela_lista_sorteios_organizador import TelaListaSorteios
-from views.tela_login import TelaLogin
-from views.tela_meus_sorteios import TelaMeusSorteios
-from views.tela_organizador import TelaOrganizador
-from views.tela_participante import TelaParticipante
 from views.tela_realizar_sorteio import TelaRealizarSorteio
 from views.tela_vizualizar_mapeio_sorteio_organizador import TelaVisualizarSorteioGeral
+from views.tela_selecionar_evento import TelaSelecionarEvento       
+from views.tela_gerenciar_participacao import TelaGerenciarParticipacao 
+
+# Views do Participante
+from views.tela_participante import TelaParticipante
+from views.tela_lista_desejos import TelaListaDesejos
+from views.tela_meus_sorteios import TelaMeusSorteios
 
 
 class App:
@@ -42,8 +46,6 @@ class App:
         tela_atual = TelaInicial()
 
         while tela_atual is not None:
-            # CORREÇÃO: Chamamos abrir() apenas UMA vez e sempre esperamos 3 valores.
-            # Certifique-se que todas as suas Views retornam ("string", objeto, objeto/None)
             proxima_tela_str, evento, valores = tela_atual.abrir()
 
             if proxima_tela_str == "sair":
@@ -90,23 +92,31 @@ class App:
                     tela_atual = TelaOrganizador(self.__organizador_logado)
                 elif proxima_tela_str == "cadastro_evento":
                     tela_atual = TelaCadastroEvento(self.__evento_controller, self.__organizador_logado)
+                elif proxima_tela_str == "selecionar_evento_participacao":
+                    tela_atual = TelaSelecionarEvento(self.__organizador_logado)
 
             elif isinstance(tela_atual, TelaCadastroEvento):
                  if proxima_tela_str == "menu_eventos":
                       tela_atual = TelaEventosMenu(self.__organizador_logado)
+
+            elif isinstance(tela_atual, TelaSelecionarEvento):
+                if proxima_tela_str == "voltar":
+                    tela_atual = TelaEventosMenu(self.__organizador_logado)
+                elif proxima_tela_str == "evento_selecionado":
+                    tela_atual = TelaGerenciarParticipacao(evento, self.__organizador_logado)
+
+            elif isinstance(tela_atual, TelaGerenciarParticipacao):
+                if proxima_tela_str == "menu_eventos":
+                    tela_atual = TelaEventosMenu(self.__organizador_logado)
 
             elif isinstance(tela_atual, TelaListaSorteios):
                 if proxima_tela_str == "painel_organizador":
                     tela_atual = TelaOrganizador(self.__organizador_logado)
 
                 elif proxima_tela_str == "acao_sorteio":
-                    # Note que mudei a string de retorno na view abaixo para "acao_sorteio"
-                    # 'evento' é o objeto que veio da lista
-
                     if evento.get_status() == StatusEvento.PREPARANDO:
                         tela_atual = TelaRealizarSorteio(evento, self.__organizador_logado)
                     else:
-                        # Se já foi sorteado ou finalizado, mostra o resultado
                         tela_atual = TelaVisualizarSorteioGeral(evento, self.__organizador_logado)
 
             elif isinstance(tela_atual, TelaVisualizarSorteioGeral):
@@ -115,7 +125,6 @@ class App:
 
             elif isinstance(tela_atual, TelaRealizarSorteio):
                 if proxima_tela_str == "menu_eventos":
-                     # Retorna para a lista de sorteios para manter o contexto
                      tela_atual = TelaListaSorteios(self.__organizador_logado)
 
             # --- Fluxo do Participante ---
@@ -137,6 +146,5 @@ class App:
                 if proxima_tela_str == "painel_participante":
                     tela_atual = TelaParticipante(self.__participante_logado)
 
-        # Fecha a janela ao sair do loop (se não tiver sido fechada antes)
         if hasattr(tela_atual, 'fechar'):
             tela_atual.fechar()

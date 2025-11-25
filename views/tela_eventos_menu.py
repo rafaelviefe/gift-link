@@ -10,24 +10,20 @@ class TelaEventosMenu:
     
     def __criar_janela(self):
         layout = [
-            [
-                sg.Text(
-                    "Gerenciar Eventos",
-                    font=("Helvetica", 20, "bold"),
-                )
-            ],
+            [sg.Text("Gerenciar Eventos", font=("Helvetica", 20, "bold"))],
             [sg.VPush()],
-            [sg.Button("Cadastrar", key="-CADASTRO_EVENTO-")],
-            [sg.Button("Detalhes", key="-DETALHES_EVENTO-")],
-            [sg.Button("Voltar", key="-VOLTAR-")],
+            [sg.Button("Cadastrar Novo Evento", key="-CADASTRO_EVENTO-", size=(25, 2))],
+            [sg.Text("")],
+            [sg.Button("Gerenciar Participantes", key="-GERENCIAR_PARTICIPANTES-", size=(25, 2))],
             [sg.VPush()],
+            [sg.Button("Voltar", key="-VOLTAR-")]
         ]
         return sg.Window(
             "Menu de Eventos",
             layout,
             finalize=True,
             element_justification="center",
-            size=(500, 400),
+            size=(400, 350),
         )
 
     def abrir(self):
@@ -44,8 +40,9 @@ class TelaEventosMenu:
                 self.fechar()
                 return "cadastro_evento", self.__organizador, None
             
-            if evento == '-DETALHES_EVENTO-':
-                sg.popup(f"Funcionalidade de '{evento.strip('-')}' estará disponível em breve!")
+            if evento == '-GERENCIAR_PARTICIPANTES-':
+                self.fechar()
+                return "selecionar_evento_participacao", self.__organizador, None
 
     def fechar(self):
         if self.__janela:

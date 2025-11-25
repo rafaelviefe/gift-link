@@ -27,11 +27,15 @@ class ParticipacaoController:
         if evento_encontrado.get_status() == StatusEvento.FINALIZADO:
              return False, "Não é possível adicionar participantes a um evento finalizado."
 
+        participantes_existentes, _ = self.__participacao_repository.listar_por_evento(evento_encontrado)
+        
+        if len(participantes_existentes) >= evento_encontrado.get_max_participantes():
+            return False, f"O evento atingiu o limite máximo de {evento_encontrado.get_max_participantes()} participantes."
+
         participante_encontrado, _ = self.__participante_repository.buscar_por_id(id_participante)
         if not participante_encontrado:
              return False, "Participante não encontrado."
 
-        participantes_existentes, _ = self.__participacao_repository.listar_por_evento(evento_encontrado)
         for p in participantes_existentes:
             if p.get_id() == id_participante:
                 return False, "Participante já está vinculado a este evento."
