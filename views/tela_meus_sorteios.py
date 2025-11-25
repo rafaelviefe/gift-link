@@ -1,7 +1,9 @@
 import FreeSimpleGUI as sg
 
+from controller.participacao_controller import ParticipacaoController
 from controller.sorteio_controller import SorteioController
 from model.participante import Participante
+from model.status_evento import StatusEvento
 from views.theme import configure_theme
 
 
@@ -9,35 +11,39 @@ class TelaMeusSorteios:
     def __init__(self, participante: Participante):
         configure_theme()
         self.__participante = participante
+        self.__participacao_controller = ParticipacaoController()
         self.__sorteio_controller = SorteioController()
         self.__janela = None
-        self.__dados_sorteios = []
+        self.__participacoes = []
 
     def __criar_janela(self):
-        # Busca os dados no controller
-        self.__dados_sorteios, msg = self.__sorteio_controller.listar_meus_sorteios(self.__participante)
+        # Busca TODAS as participações (eventos sorteados ou não)
+        self.__participacoes, msg = self.__participacao_controller.listar_eventos_do_participante(self.__participante)
 
-        # Formata para exibir na lista (Apenas Nome do Evento e Status)
         lista_exibicao = []
-        for item in self.__dados_sorteios:
-            lista_exibicao.append(f"{item['evento']} ({item['status']})")
+        if self.__participacoes:
+            for p in self.__participacoes:
+                evento = p.get_evento()
+                lista_exibicao.append(f"{evento.get_id()} - {evento.get_nome()} ({evento.get_status().value})")
+        else:
+            lista_exibicao.append("Nenhuma participação encontrada.")
 
         layout = [
-            [sg.Text("Meus Amigos Secretos", font=("Helvetica", 20, "bold"))],
-            [sg.Text("Selecione um evento para ver quem você tirou:")],
+            [sg.Text("Meus Eventos", font=("Helvetica", 20, "bold"))],
+            [sg.Text("Selecione um evento para ver detalhes:", font=("Helvetica", 11))],
             [
                 sg.Listbox(
                     values=lista_exibicao,
-                    size=(50, 6),
+                    size=(50, 8),
                     key="-LISTA_EVENTOS-",
                     enable_events=True,
                     font=("Helvetica", 12)
                 )
             ],
             [sg.VPush()],
-            [sg.Text("", size=(40, 2), key="-RESULTADO-", font=("Helvetica", 14, "bold"), justification='center', text_color="#2ecc71")],
+            [sg.Text("", size=(45, 3), key="-RESULTADO-", font=("Helvetica", 12, "bold"), justification='center', text_color="#2ecc71")],
             [sg.VPush()],
-            [sg.Button("Ver Quem Eu Tirei", key="-VER-", disabled=True), sg.Button("Voltar", key="-VOLTAR-")]
+            [sg.Button("Ver Amigo Secreto", key="-VER-", disabled=True), sg.Button("Voltar", key="-VOLTAR-")]
         ]
 
         return sg.Window(
@@ -45,7 +51,7 @@ class TelaMeusSorteios:
             layout,
             finalize=True,
             element_justification="center",
-            size=(500, 400)
+            size=(500, 450)
         )
 
     def abrir(self):
@@ -58,23 +64,39 @@ class TelaMeusSorteios:
                 self.fechar()
                 return "painel_participante", self.__participante, None
 
-            # Habilita o botão apenas se algo estiver selecionado
             if evento == "-LISTA_EVENTOS-" and valores["-LISTA_EVENTOS-"]:
-                self.__janela["-VER-"].update(disabled=False)
-                # Limpa o resultado anterior para não confundir
-                self.__janela["-RESULTADO-"].update("")
+                selecao = valores["-LISTA_EVENTOS-"][0]
+                
+                if selecao == "Nenhuma participação encontrada.":
+                    self.__janela["-VER-"].update(disabled=True)
+                    self.__janela["-RESULTADO-"].update("")
+                    continue
+
+                # Recupera o objeto Participacao baseado no índice da lista
+                index = self.__janela["-LISTA_EVENTOS-"].get_indexes()[0]
+                if index < len(self.__participacoes):
+                    participacao_selecionada = self.__participacoes[index]
+                    evento_obj = participacao_selecionada.get_evento()
+                    
+                    # Lógica de Estado
+                    if evento_obj.get_status() == StatusEvento.PREPARANDO:
+                        self.__janela["-VER-"].update(disabled=True)
+                        self.__janela["-RESULTADO-"].update("⏳ Aguardando Sorteio...\nO organizador ainda não realizou o sorteio.", text_color="orange")
+                    else:
+                        # Sorteado ou Finalizado
+                        self.__janela["-VER-"].update(disabled=False)
+                        self.__janela["-RESULTADO-"].update("🎁 Sorteio Realizado!\nClique no botão abaixo para ver quem você tirou.", text_color="green")
 
             if evento == "-VER-":
-                selecao = valores["-LISTA_EVENTOS-"]
-                if selecao:
-                    # Descobre o índice selecionado para pegar o amigo secreto correspondente
+                if valores["-LISTA_EVENTOS-"]:
                     index = self.__janela["-LISTA_EVENTOS-"].get_indexes()[0]
-                    dados = self.__dados_sorteios[index]
-
-                    amigo = dados["amigo_secreto"]
-                    nome_evento = dados["evento"]
-
-                    self.__janela["-RESULTADO-"].update(f"No evento '{nome_evento}':\nVocê tirou: {amigo}")
+                    evento_obj = self.__participacoes[index].get_evento()
+                    
+                    msg_resultado = self.__sorteio_controller.verificar_quem_tirei(
+                        evento_obj.get_id(), 
+                        self.__participante.get_id()
+                    )
+                    self.__janela["-RESULTADO-"].update(msg_resultado, text_color="#2ecc71")
 
     def fechar(self):
         if self.__janela:
